@@ -125,7 +125,8 @@ export function MapCanvas() {
     regionOverlayVisible,
     eventOverlayVisible,
     setWaypoint,
-    setPlaying
+    setPlaying,
+    highlightedLifeEventId
   } = usePlaybackStore((state) => ({
     activeTrackId: state.activeTrackId,
     currentWaypointId: state.currentWaypointId,
@@ -135,7 +136,8 @@ export function MapCanvas() {
     regionOverlayVisible: state.regionOverlayVisible,
     eventOverlayVisible: state.eventOverlayVisible,
     setWaypoint: state.setWaypoint,
-    setPlaying: state.setPlaying
+    setPlaying: state.setPlaying,
+    highlightedLifeEventId: state.highlightedLifeEventId
   }));
 
   const initialActiveTrackRef = useRef(activeTrackId);
@@ -608,7 +610,9 @@ export function MapCanvas() {
     const durationSeconds = (segment.estDurationMinutes ?? 180) * 60;
     const baseSpeed = durationSeconds > 0 ? totalLengthMeters / durationSeconds : BASE_SPEED_METERS_PER_SEC;
     const modeMultiplier = TRANSPORT_SPEED_MULTIPLIERS[segment.transportMode] ?? 1;
-    const speed = baseSpeed * playbackSpeed * modeMultiplier;
+    const rawSpeed = baseSpeed * modeMultiplier;
+    const minimumSpeed = BASE_SPEED_METERS_PER_SEC * modeMultiplier;
+    const speed = Math.max(rawSpeed, minimumSpeed) * playbackSpeed;
 
     const animationState: AnimationState = {
       distanceTraveled: animationRef.current.segmentId === segment.id ? animationRef.current.distanceTraveled : 0,
@@ -632,7 +636,7 @@ export function MapCanvas() {
         return;
       }
 
-      const distanceKm = animationState.distanceTraveled / 1000;
+      const distanceKm = Math.min(animationState.distanceTraveled / 1000, totalLengthKm);
       const along = turf.along(segment.geometry, distanceKm, { units: 'kilometers' });
       if (!along || !along.geometry || !along.geometry.coordinates) {
         marker.setLngLat(target.coordinates);
@@ -650,7 +654,7 @@ export function MapCanvas() {
       }
       marker.setLngLat(coords);
 
-      const partialSlice = turf.lineSlice(turf.point(current.coordinates), along, segment.geometry);
+      const partialSlice = turf.lineSliceAlong(segment.geometry, 0, distanceKm, { units: 'kilometers' });
       const partialLine = partialSlice.geometry as LineString;
       if (!partialLine || !partialLine.coordinates?.length) {
         setActiveTrackProgress(map, activeTrackId, current.id);
