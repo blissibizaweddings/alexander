@@ -1,4 +1,4 @@
-import type { CampaignDataset, RouteSegment, Track, Waypoint, TerritorySnapshot, TerritoryFeature, AncientLabel } from '@/types';
+import type { CampaignDataset, RouteSegment, Track, Waypoint, TerritorySnapshot, TerritoryFeature, AncientLabel, LifeEvent } from '@/types';
 import type { LineString, Polygon } from 'geojson';
 
 const createLineString = (coords: [number, number][]): LineString => ({
@@ -455,6 +455,191 @@ const stageMesopotamiaSecured: TerritoryFeature[] = [
   makeTerritory('territory-persia-core', 'Persis and Media', 'persia', persisHeartland)
 ];
 
+const lifeTimeline: LifeEvent[] = [
+  {
+    id: "life-birth",
+    title: "Birth of Alexander III",
+    occurredOn: "0356-07-20",
+    location: "Pella, Macedon",
+    description: "Alexander is born to Philip II and Olympias, inheriting the royal lineage of Macedon."
+  },
+  {
+    id: "life-bucephalus",
+    title: "Tames the Horse Bucephalus",
+    occurredOn: "0344-01-01",
+    location: "Pella, Macedon",
+    description: "Demonstrating courage and insight, the young prince tames the wild stallion Bucephalus, earning Philip II's admiration."
+  },
+  {
+    id: "life-aristotle",
+    title: "Tutored by Aristotle",
+    occurredOn: "0343-01-01",
+    location: "Mieza, Macedon",
+    description: "Alexander and other noble youths begin intensive studies under Aristotle, absorbing lessons in philosophy, science, and governance."
+  },
+  {
+    id: "life-regent",
+    title: "Serves as Regent of Macedon",
+    occurredOn: "0340-01-01",
+    location: "Pella, Macedon",
+    description: "While Philip II campaigns abroad, Alexander governs as regent and quells revolts, showcasing early administrative skill."
+  },
+  {
+    id: "life-chaeronea",
+    title: "Battle of Chaeronea",
+    occurredOn: "0338-08-02",
+    location: "Chaeronea, Boeotia",
+    description: "Alexander leads the Companion cavalry to decisive effect, helping Philip II defeat the Greek coalition and secure Macedonian hegemony."
+  },
+  {
+    id: "life-ascension",
+    title: "Ascends the Macedonian Throne",
+    occurredOn: "0336-10-01",
+    location: "Pella, Macedon",
+    description: "Following Philip II's assassination, Alexander suppresses rivals and is proclaimed king at age twenty."
+  },
+  {
+    id: "life-thebes",
+    title: "Sack of Thebes",
+    occurredOn: "0335-09-01",
+    location: "Thebes, Boeotia",
+    description: "Alexander swiftly destroys the rebelling city of Thebes, warning other Greek states and consolidating his authority."
+  },
+  {
+    id: "life-hellespont",
+    title: "Crosses the Hellespont",
+    occurredOn: "0334-04-01",
+    location: "Abydos, Hellespont",
+    description: "Leading nearly 40,000 troops, Alexander enters Asia Minor and begins his campaign against the Persian Empire."
+  },
+  {
+    id: "life-granicus",
+    title: "Battle of the Granicus",
+    occurredOn: "0334-05-01",
+    location: "Granicus River, Asia Minor",
+    description: "Alexander defeats the Persian satraps in his first major battle on Asian soil, securing Asia Minor."
+  },
+  {
+    id: "life-gordian",
+    title: "Cuts the Gordian Knot",
+    occurredOn: "0333-05-15",
+    location: "Gordium, Phrygia",
+    description: "According to legend, Alexander slices the Gordian Knot, fulfilling a prophecy that whoever untied it would rule Asia."
+  },
+  {
+    id: "life-issus",
+    title: "Battle of Issus",
+    occurredOn: "0333-11-05",
+    location: "Issus, Cilicia",
+    description: "Facing Darius III, Alexander wins a decisive victory, capturing the Persian royal family and securing Syria."
+  },
+  {
+    id: "life-tyre",
+    title: "Siege of Tyre",
+    occurredOn: "0332-07-29",
+    location: "Tyre, Phoenicia",
+    description: "After a seven-month siege, Alexander captures the island city of Tyre, opening the Eastern Mediterranean to his fleet."
+  },
+  {
+    id: "life-egypt",
+    title: "Crowned Pharaoh in Egypt",
+    occurredOn: "0332-11-14",
+    location: "Memphis, Egypt",
+    description: "Welcomed as a liberator, Alexander is proclaimed pharaoh and later founds Alexandria on the Nile Delta."
+  },
+  {
+    id: "life-siwa",
+    title: "Consults the Oracle of Ammon",
+    occurredOn: "0331-02-01",
+    location: "Siwa Oasis, Egypt",
+    description: "At the Siwa Oasis, priests hail Alexander as the son of Zeus-Ammon, reinforcing his divine authority among troops and subjects."
+  },
+  {
+    id: "life-gaugamela",
+    title: "Battle of Gaugamela",
+    occurredOn: "0331-10-01",
+    location: "Near Gaugamela, Assyria",
+    description: "Alexander's tactical brilliance destroys Darius III's main army, effectively ending Persian resistance in Mesopotamia."
+  },
+  {
+    id: "life-babylon",
+    title: "Triumphal Entry into Babylon",
+    occurredOn: "0331-10-22",
+    location: "Babylon, Mesopotamia",
+    description: "Babylon submits peacefully and becomes Alexander's administrative capital in Asia."
+  },
+  {
+    id: "life-persepolis",
+    title: "Burning of Persepolis",
+    occurredOn: "0330-05-01",
+    location: "Persepolis, Persis",
+    description: "Alexander seizes the Persian ceremonial capital and later burns the palace complex, symbolically ending the Achaemenid dynasty."
+  },
+  {
+    id: "life-hindu-kush",
+    title: "Campaigns in Bactria and Sogdiana",
+    occurredOn: "0329-01-01",
+    location: "Bactria and Sogdiana",
+    description: "Alexander wages prolonged guerilla warfare in Central Asia, founding cities and securing the empire's northeastern frontier."
+  },
+  {
+    id: "life-roxana",
+    title: "Marriage to Roxana",
+    occurredOn: "0327-03-01",
+    location: "Bactra, Bactria",
+    description: "To legitimize rule in Central Asia, Alexander marries Roxana, a noble Sogdian woman."
+  },
+  {
+    id: "life-hydaspes",
+    title: "Battle of the Hydaspes",
+    occurredOn: "0326-05-01",
+    location: "Hydaspes River, Punjab",
+    description: "Alexander defeats King Porus after a difficult battle, extending Macedonian control into the Indus Valley."
+  },
+  {
+    id: "life-mutiny",
+    title: "Troops Mutiny on the Hyphasis",
+    occurredOn: "0326-08-15",
+    location: "Hyphasis River, Punjab",
+    description: "Exhausted Macedonian troops refuse to march deeper into India, compelling Alexander to turn back toward the west."
+  },
+  {
+    id: "life-gedrosia",
+    title: "Crossing the Gedrosian Desert",
+    occurredOn: "0325-10-01",
+    location: "Gedrosia (Makran Desert)",
+    description: "During the return journey, Alexander leads a perilous march along the southern coast, losing thousands to heat and thirst."
+  },
+  {
+    id: "life-susa-weddings",
+    title: "Mass Weddings at Susa",
+    occurredOn: "0324-02-01",
+    location: "Susa, Susiana",
+    description: "Alexander stages mass marriages between Macedonian officers and Persian noblewomen to fuse the cultures of his empire."
+  },
+  {
+    id: "life-hephaestion",
+    title: "Death of Hephaestion",
+    occurredOn: "0324-10-01",
+    location: "Ecbatana, Media",
+    description: "Hephaestion, Alexander's closest companion and general, dies suddenly, plunging the king into intense mourning."
+  },
+  {
+    id: "life-babylon-return",
+    title: "Returns to Babylon for Imperial Plans",
+    occurredOn: "0324-11-01",
+    location: "Babylon, Mesopotamia",
+    description: "Alexander begins reorganizing the empire, planning new campaigns toward Arabia and maritime projects."
+  },
+  {
+    id: "life-death",
+    title: "Death of Alexander the Great",
+    occurredOn: "0323-06-10",
+    location: "Babylon, Mesopotamia",
+    description: "After a sudden illness, Alexander dies at age thirty-two, leaving a vast empire without a clear successor."
+  }
+];
+
 const territoryTimeline: TerritorySnapshot[] = [
   createSnapshot('wp-pella', stageInitialTerritories, 'Alexander\'s Macedon before the Asian campaign (336–334 BCE)'),
   createSnapshot('wp-granicus', stageAnatoliaSecured, 'After the Battle of the Granicus (334 BCE)'),
@@ -727,7 +912,8 @@ export const dataset: CampaignDataset = {
     }
   ],
   territoryTimeline,
-  ancientLabels
+  ancientLabels,
+  lifeTimeline
 };
 
 export const orderedWaypoints = (trackId: string): Waypoint[] =>
@@ -749,3 +935,5 @@ export const territorySnapshotForWaypoint = (waypointId: string): TerritorySnaps
   }
   return createSnapshot(waypointId, fallback.territories, fallback.description ?? '');
 };
+
+export const getLifeTimeline = (): LifeEvent[] => dataset.lifeTimeline;

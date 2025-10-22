@@ -92,6 +92,14 @@ export interface AncientLabel {
   coordinates: [number, number];
 }
 
+export interface LifeEvent {
+  id: string;
+  title: string;
+  occurredOn?: string;
+  location?: string;
+  description: string;
+}
+
 export interface CampaignDataset {
   people: Person[];
   tracks: Track[];
@@ -101,4 +109,5 @@ export interface CampaignDataset {
   regions: RegionOverlay[];
   territoryTimeline: TerritorySnapshot[];
   ancientLabels: AncientLabel[];
+  lifeTimeline: LifeEvent[];
 }
