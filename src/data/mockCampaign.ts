@@ -70,9 +70,10 @@ const waypoints: Waypoint[] = [
       {
         id: 'media-pella-image',
         kind: 'image',
-        url: 'https://images.example.com/pella.jpg',
+        url: 'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=1200&q=80',
         title: 'Ruins of Pella',
-        credit: 'Hellenic Ministry of Culture'
+        credit: 'Image via Unsplash',
+        caption: 'Sunset over the archaeological site of Pella.'
       }
     ],
     sources: [
@@ -102,9 +103,10 @@ const waypoints: Waypoint[] = [
       {
         id: 'media-granicus-image',
         kind: 'image',
-        url: 'https://images.example.com/granicus.jpg',
+        url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
         title: 'Granicus River Valley',
-        credit: 'Asia Minor Research Foundation'
+        credit: 'Image via Unsplash',
+        caption: 'The river valley terrain near the Granicus.'
       }
     ],
     sources: ['Arrian, *Anabasis* 1.14-16']
@@ -127,6 +129,14 @@ const waypoints: Waypoint[] = [
         url: '/media/audio/issus.mp3',
         title: 'Decisive Victory at Issus',
         credit: 'Narrated by Dr. Helena Markos'
+      },
+      {
+        id: 'media-issus-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80',
+        title: 'Cilician Foothills',
+        credit: 'Image via Unsplash',
+        caption: 'The rugged ground near Issus where the armies met.'
       }
     ],
     sources: ['Arrian, *Anabasis* 2.11-14']
@@ -148,6 +158,14 @@ const waypoints: Waypoint[] = [
         kind: 'audio',
         url: '/media/audio/tyre.mp3',
         title: 'Siegecraft at Tyre'
+      },
+      {
+        id: 'media-tyre-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80',
+        title: 'Siege of Tyre Coastline',
+        credit: 'Image via Unsplash',
+        caption: 'Coastal shallows facing the fortress of Tyre.'
       }
     ],
     sources: ['Diodorus Siculus 17.40-46']
@@ -169,6 +187,14 @@ const waypoints: Waypoint[] = [
         kind: 'audio',
         url: '/media/audio/gaugamela.mp3',
         title: 'The Persian Line Falters'
+      },
+      {
+        id: 'media-gaugamela-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80',
+        title: 'Plain of Gaugamela',
+        credit: 'Image via Unsplash',
+        caption: 'Wide plains suited for the decisive battle of Gaugamela.'
       }
     ],
     sources: ['Arrian, *Anabasis* 3.13-15']
@@ -190,6 +216,14 @@ const waypoints: Waypoint[] = [
         kind: 'audio',
         url: '/media/audio/babylon.mp3',
         title: 'Triumphal Entry into Babylon'
+      },
+      {
+        id: 'media-babylon-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1505843513577-22bb7d21e455?auto=format&fit=crop&w=1200&q=80',
+        title: 'Babylonian Reliefs',
+        credit: 'Image via Unsplash',
+        caption: 'Symbolic imagery evoking the grandeur of Babylon.'
       }
     ],
     sources: ['Curtius Rufus 5.1']
@@ -203,7 +237,16 @@ const waypoints: Waypoint[] = [
     coordinates: [27.02, 40.45],
     summary:
       'Parmenion commands the left wing of the Macedonian army, anchoring the crossing at the Granicus River.',
-    media: [],
+    media: [
+      {
+        id: 'media-parmenion-granicus-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
+        title: 'Parmenion Holds the Line',
+        credit: 'Image via Unsplash',
+        caption: 'The Macedonian left secures the river crossing at Granicus.'
+      }
+    ],
     sources: ['Arrian, *Anabasis* 1.14']
   },
   {
@@ -215,7 +258,16 @@ const waypoints: Waypoint[] = [
     coordinates: [35.98, 36.6],
     summary:
       'Parmenion secures the narrow coastal strip at Issus, preventing a Persian flanking maneuver.',
-    media: [],
+    media: [
+      {
+        id: 'media-parmenion-issus-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+        title: 'Parmenion at Issus',
+        credit: 'Image via Unsplash',
+        caption: 'Narrow pass terrain defended by Parmenion.'
+      }
+    ],
     sources: ['Arrian, *Anabasis* 2.11']
   },
   {
@@ -227,7 +279,16 @@ const waypoints: Waypoint[] = [
     coordinates: [36.05, 36.6],
     summary:
       'Darius III gathers a vast army near Issus, expecting to catch Alexander in the open.',
-    media: [],
+    media: [
+      {
+        id: 'media-darius-issus-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+        title: 'Darius at Issus',
+        credit: 'Image via Unsplash',
+        caption: 'Persian forces assemble in the hills near Issus.'
+      }
+    ],
     sources: ['Diodorus Siculus 17.32']
   },
   {
@@ -239,7 +300,16 @@ const waypoints: Waypoint[] = [
     coordinates: [43.30, 36.37],
     summary:
       'Darius reassembles his forces on a prepared battlefield near Gaugamela.',
-    media: [],
+    media: [
+      {
+        id: 'media-darius-gaugamela-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80',
+        title: 'Royal Camp at Gaugamela',
+        credit: 'Image via Unsplash',
+        caption: 'Desert plain prepared for Darius\' field army.'
+      }
+    ],
     sources: ['Arrian, *Anabasis* 3.8']
   },
   {
@@ -251,7 +321,16 @@ const waypoints: Waypoint[] = [
     coordinates: [35.19, 33.27],
     summary:
       'Nearchus coordinates the Macedonian fleet supporting the siege of Tyre.',
-    media: [],
+    media: [
+      {
+        id: 'media-nearchus-tyre-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=1200&q=80',
+        title: 'Fleet off Tyre',
+        credit: 'Image via Unsplash',
+        caption: 'Macedonian ships maintain the blockade of Tyre.'
+      }
+    ],
     sources: ['Arrian, *Anabasis* 2.20']
   },
   {
@@ -263,7 +342,16 @@ const waypoints: Waypoint[] = [
     coordinates: [44.42, 32.54],
     summary:
       'Nearchus sails up the Euphrates to deliver supplies to Alexander in Babylon.',
-    media: [],
+    media: [
+      {
+        id: 'media-nearchus-babylon-image',
+        kind: 'image',
+        url: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
+        title: 'Fleet Rejoins at Babylon',
+        credit: 'Image via Unsplash',
+        caption: 'Supply ships sailing up the Euphrates toward Babylon.'
+      }
+    ],
     sources: ['Arrian, *Anabasis* 3.16']
   }
 ];

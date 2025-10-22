@@ -16,9 +16,8 @@ import {
 } from '@/utils/geo';
 import { modeIcon } from '@/utils/format';
 
-const MAP_STYLE =
-  process.env.NEXT_PUBLIC_MAP_STYLE_URL ??
-  'https://api.maptiler.com/maps/vintage/style.json?key=GzmCA0SzQ8ObJaXMyL2p';
+const FALLBACK_MAP_STYLE = 'https://demotiles.maplibre.org/style.json';
+const MAP_STYLE = process.env.NEXT_PUBLIC_MAP_STYLE_URL ?? FALLBACK_MAP_STYLE;
 
 const BASE_SPEED_METERS_PER_SEC = 20; // tuned for smooth playback
 
@@ -74,6 +73,16 @@ export function MapCanvas() {
       center: [22.5, 40.8],
       zoom: 4,
       attributionControl: true
+    });
+    let hasAppliedFallbackStyle = MAP_STYLE === FALLBACK_MAP_STYLE;
+    map.on('error', (event) => {
+      if (!hasAppliedFallbackStyle && !map.isStyleLoaded()) {
+        const status = (event as { error?: { status?: number } })?.error?.status;
+        if (typeof status !== 'number' || status >= 400) {
+          map.setStyle(FALLBACK_MAP_STYLE);
+          hasAppliedFallbackStyle = true;
+        }
+      }
     });
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
     mapRef.current = map;
