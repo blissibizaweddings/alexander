@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background-color: theme('colors.parchment');
+  color: theme('colors.ink');
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: theme('fontFamily.sans');
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.85), rgba(242,237,227,1));
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(320px, 480px);
+  height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+}
+
+.map-container {
+  position: relative;
+}
+
+.maplibregl-canvas-container {
+  filter: sepia(0.3) saturate(0.8) contrast(1.05);
+}
+
+.control-panel {
+  background: linear-gradient(135deg, rgba(242, 237, 227, 0.96), rgba(230, 217, 198, 0.92));
+  border-left: 1px solid rgba(44, 27, 18, 0.1);
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+}
+
+.timeline-track {
+  height: 4px;
+  background: rgba(44, 27, 18, 0.1);
+  position: relative;
+  border-radius: 999px;
+}
+
+.timeline-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: theme('colors.accent');
+  border-radius: 999px;
+  border: 2px solid theme('colors.parchment');
+}
+
+.panel-section {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(44, 27, 18, 0.08);
+}
+
+.panel-section h2 {
+  font-family: theme('fontFamily.serif');
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  border: 1px solid rgba(44, 27, 18, 0.2);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:focus-visible {
+  outline: 2px solid theme('colors.accent');
+  outline-offset: 2px;
+}
+
+.legend-swatch {
+  width: 16px;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.audio-player {
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
