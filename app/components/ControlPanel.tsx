@@ -94,7 +94,7 @@ export function ControlPanel() {
   };
 
   return (
-    <aside className="control-panel flex-1 overflow-y-auto" aria-label="Campaign controls">
+    <aside className="control-panel mt-4" aria-label="Campaign controls">
       <div className="panel-section">
         <label className="block text-xs font-semibold uppercase tracking-wide text-ink/60" htmlFor="track-select">
           Active track
