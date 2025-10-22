@@ -125,7 +125,8 @@ export function MapCanvas() {
     regionOverlayVisible,
     eventOverlayVisible,
     setWaypoint,
-    setPlaying
+    setPlaying,
+    highlightedLifeEventId
   } = usePlaybackStore((state) => ({
     activeTrackId: state.activeTrackId,
     currentWaypointId: state.currentWaypointId,
@@ -135,7 +136,8 @@ export function MapCanvas() {
     regionOverlayVisible: state.regionOverlayVisible,
     eventOverlayVisible: state.eventOverlayVisible,
     setWaypoint: state.setWaypoint,
-    setPlaying: state.setPlaying
+    setPlaying: state.setPlaying,
+    highlightedLifeEventId: state.highlightedLifeEventId
   }));
 
   const initialActiveTrackRef = useRef(activeTrackId);
