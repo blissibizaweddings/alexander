@@ -634,7 +634,7 @@ export function MapCanvas() {
         return;
       }
 
-      const distanceKm = animationState.distanceTraveled / 1000;
+      const distanceKm = Math.min(animationState.distanceTraveled / 1000, totalLengthKm);
       const along = turf.along(segment.geometry, distanceKm, { units: 'kilometers' });
       if (!along || !along.geometry || !along.geometry.coordinates) {
         marker.setLngLat(target.coordinates);
@@ -652,7 +652,7 @@ export function MapCanvas() {
       }
       marker.setLngLat(coords);
 
-      const partialSlice = turf.lineSlice(turf.point(current.coordinates), along, segment.geometry);
+      const partialSlice = turf.lineSliceAlong(segment.geometry, 0, distanceKm, { units: 'kilometers' });
       const partialLine = partialSlice.geometry as LineString;
       if (!partialLine || !partialLine.coordinates?.length) {
         setActiveTrackProgress(map, activeTrackId, current.id);
