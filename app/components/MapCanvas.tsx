@@ -610,7 +610,9 @@ export function MapCanvas() {
     const durationSeconds = (segment.estDurationMinutes ?? 180) * 60;
     const baseSpeed = durationSeconds > 0 ? totalLengthMeters / durationSeconds : BASE_SPEED_METERS_PER_SEC;
     const modeMultiplier = TRANSPORT_SPEED_MULTIPLIERS[segment.transportMode] ?? 1;
-    const speed = baseSpeed * playbackSpeed * modeMultiplier;
+    const rawSpeed = baseSpeed * modeMultiplier;
+    const minimumSpeed = BASE_SPEED_METERS_PER_SEC * modeMultiplier;
+    const speed = Math.max(rawSpeed, minimumSpeed) * playbackSpeed;
 
     const animationState: AnimationState = {
       distanceTraveled: animationRef.current.segmentId === segment.id ? animationRef.current.distanceTraveled : 0,
