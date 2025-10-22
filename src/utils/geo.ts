@@ -83,6 +83,25 @@ export const buildTerritoryFeatures = (waypointId: string): FeatureCollection<Po
   };
 };
 
+export const buildLifeEventFeatures = (): FeatureCollection<Point> => ({
+  type: 'FeatureCollection',
+  features: dataset.lifeTimeline
+    .filter((event) => Array.isArray(event.coordinates))
+    .map((event) => ({
+      type: 'Feature',
+      id: event.id,
+      properties: {
+        title: event.title,
+        occurredOn: event.occurredOn,
+        location: event.location
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: event.coordinates as [number, number]
+      }
+    }))
+});
+
 export const buildAncientLabelFeatures = (): FeatureCollection<Point> => ({
   type: 'FeatureCollection',
   features: dataset.ancientLabels.map((label) => ({

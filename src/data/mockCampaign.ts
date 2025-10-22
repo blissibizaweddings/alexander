@@ -461,6 +461,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Birth of Alexander III",
     occurredOn: "0356-07-20",
     location: "Pella, Macedon",
+    coordinates: [22.524, 40.758],
     description: "Alexander is born to Philip II and Olympias, inheriting the royal lineage of Macedon."
   },
   {
@@ -468,6 +469,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Tames the Horse Bucephalus",
     occurredOn: "0344-01-01",
     location: "Pella, Macedon",
+    coordinates: [22.524, 40.758],
     description: "Demonstrating courage and insight, the young prince tames the wild stallion Bucephalus, earning Philip II's admiration."
   },
   {
@@ -475,6 +477,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Tutored by Aristotle",
     occurredOn: "0343-01-01",
     location: "Mieza, Macedon",
+    coordinates: [23.32, 40.72],
     description: "Alexander and other noble youths begin intensive studies under Aristotle, absorbing lessons in philosophy, science, and governance."
   },
   {
@@ -482,6 +485,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Serves as Regent of Macedon",
     occurredOn: "0340-01-01",
     location: "Pella, Macedon",
+    coordinates: [22.524, 40.758],
     description: "While Philip II campaigns abroad, Alexander governs as regent and quells revolts, showcasing early administrative skill."
   },
   {
@@ -489,6 +493,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Battle of Chaeronea",
     occurredOn: "0338-08-02",
     location: "Chaeronea, Boeotia",
+    coordinates: [22.875, 38.482],
     description: "Alexander leads the Companion cavalry to decisive effect, helping Philip II defeat the Greek coalition and secure Macedonian hegemony."
   },
   {
@@ -496,6 +501,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Ascends the Macedonian Throne",
     occurredOn: "0336-10-01",
     location: "Pella, Macedon",
+    coordinates: [22.524, 40.758],
     description: "Following Philip II's assassination, Alexander suppresses rivals and is proclaimed king at age twenty."
   },
   {
@@ -503,6 +509,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Sack of Thebes",
     occurredOn: "0335-09-01",
     location: "Thebes, Boeotia",
+    coordinates: [23.319, 38.325],
     description: "Alexander swiftly destroys the rebelling city of Thebes, warning other Greek states and consolidating his authority."
   },
   {
@@ -510,6 +517,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Crosses the Hellespont",
     occurredOn: "0334-04-01",
     location: "Abydos, Hellespont",
+    coordinates: [26.4, 40.2],
     description: "Leading nearly 40,000 troops, Alexander enters Asia Minor and begins his campaign against the Persian Empire."
   },
   {
@@ -517,6 +525,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Battle of the Granicus",
     occurredOn: "0334-05-01",
     location: "Granicus River, Asia Minor",
+    coordinates: [27.18, 40.45],
     description: "Alexander defeats the Persian satraps in his first major battle on Asian soil, securing Asia Minor."
   },
   {
@@ -524,6 +533,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Cuts the Gordian Knot",
     occurredOn: "0333-05-15",
     location: "Gordium, Phrygia",
+    coordinates: [31.18, 39.31],
     description: "According to legend, Alexander slices the Gordian Knot, fulfilling a prophecy that whoever untied it would rule Asia."
   },
   {
@@ -531,6 +541,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Battle of Issus",
     occurredOn: "0333-11-05",
     location: "Issus, Cilicia",
+    coordinates: [36.6, 36.6],
     description: "Facing Darius III, Alexander wins a decisive victory, capturing the Persian royal family and securing Syria."
   },
   {
@@ -538,6 +549,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Siege of Tyre",
     occurredOn: "0332-07-29",
     location: "Tyre, Phoenicia",
+    coordinates: [35.2, 33.27],
     description: "After a seven-month siege, Alexander captures the island city of Tyre, opening the Eastern Mediterranean to his fleet."
   },
   {
@@ -545,6 +557,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Crowned Pharaoh in Egypt",
     occurredOn: "0332-11-14",
     location: "Memphis, Egypt",
+    coordinates: [31.25, 29.85],
     description: "Welcomed as a liberator, Alexander is proclaimed pharaoh and later founds Alexandria on the Nile Delta."
   },
   {
@@ -552,6 +565,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Consults the Oracle of Ammon",
     occurredOn: "0331-02-01",
     location: "Siwa Oasis, Egypt",
+    coordinates: [25.54, 29.2],
     description: "At the Siwa Oasis, priests hail Alexander as the son of Zeus-Ammon, reinforcing his divine authority among troops and subjects."
   },
   {
@@ -559,6 +573,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Battle of Gaugamela",
     occurredOn: "0331-10-01",
     location: "Near Gaugamela, Assyria",
+    coordinates: [43.25, 36.36],
     description: "Alexander's tactical brilliance destroys Darius III's main army, effectively ending Persian resistance in Mesopotamia."
   },
   {
@@ -566,6 +581,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Triumphal Entry into Babylon",
     occurredOn: "0331-10-22",
     location: "Babylon, Mesopotamia",
+    coordinates: [44.42, 32.54],
     description: "Babylon submits peacefully and becomes Alexander's administrative capital in Asia."
   },
   {
@@ -573,6 +589,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Burning of Persepolis",
     occurredOn: "0330-05-01",
     location: "Persepolis, Persis",
+    coordinates: [52.88, 29.94],
     description: "Alexander seizes the Persian ceremonial capital and later burns the palace complex, symbolically ending the Achaemenid dynasty."
   },
   {
@@ -580,6 +597,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Campaigns in Bactria and Sogdiana",
     occurredOn: "0329-01-01",
     location: "Bactria and Sogdiana",
+    coordinates: [68.8, 37.2],
     description: "Alexander wages prolonged guerilla warfare in Central Asia, founding cities and securing the empire's northeastern frontier."
   },
   {
@@ -587,6 +605,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Marriage to Roxana",
     occurredOn: "0327-03-01",
     location: "Bactra, Bactria",
+    coordinates: [66.9, 36.7],
     description: "To legitimize rule in Central Asia, Alexander marries Roxana, a noble Sogdian woman."
   },
   {
@@ -594,6 +613,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Battle of the Hydaspes",
     occurredOn: "0326-05-01",
     location: "Hydaspes River, Punjab",
+    coordinates: [73.7, 32.7],
     description: "Alexander defeats King Porus after a difficult battle, extending Macedonian control into the Indus Valley."
   },
   {
@@ -601,6 +621,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Troops Mutiny on the Hyphasis",
     occurredOn: "0326-08-15",
     location: "Hyphasis River, Punjab",
+    coordinates: [75.1, 31.45],
     description: "Exhausted Macedonian troops refuse to march deeper into India, compelling Alexander to turn back toward the west."
   },
   {
@@ -608,6 +629,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Crossing the Gedrosian Desert",
     occurredOn: "0325-10-01",
     location: "Gedrosia (Makran Desert)",
+    coordinates: [63.0, 26.0],
     description: "During the return journey, Alexander leads a perilous march along the southern coast, losing thousands to heat and thirst."
   },
   {
@@ -615,6 +637,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Mass Weddings at Susa",
     occurredOn: "0324-02-01",
     location: "Susa, Susiana",
+    coordinates: [48.25, 32.93],
     description: "Alexander stages mass marriages between Macedonian officers and Persian noblewomen to fuse the cultures of his empire."
   },
   {
@@ -622,6 +645,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Death of Hephaestion",
     occurredOn: "0324-10-01",
     location: "Ecbatana, Media",
+    coordinates: [48.68, 34.8],
     description: "Hephaestion, Alexander's closest companion and general, dies suddenly, plunging the king into intense mourning."
   },
   {
@@ -629,6 +653,7 @@ const lifeTimeline: LifeEvent[] = [
     title: "Returns to Babylon for Imperial Plans",
     occurredOn: "0324-11-01",
     location: "Babylon, Mesopotamia",
+    coordinates: [44.42, 32.54],
     description: "Alexander begins reorganizing the empire, planning new campaigns toward Arabia and maritime projects."
   },
   {
@@ -636,10 +661,10 @@ const lifeTimeline: LifeEvent[] = [
     title: "Death of Alexander the Great",
     occurredOn: "0323-06-10",
     location: "Babylon, Mesopotamia",
+    coordinates: [44.42, 32.54],
     description: "After a sudden illness, Alexander dies at age thirty-two, leaving a vast empire without a clear successor."
   }
 ];
-
 const territoryTimeline: TerritorySnapshot[] = [
   createSnapshot('wp-pella', stageInitialTerritories, 'Alexander\'s Macedon before the Asian campaign (336–334 BCE)'),
   createSnapshot('wp-granicus', stageAnatoliaSecured, 'After the Battle of the Granicus (334 BCE)'),

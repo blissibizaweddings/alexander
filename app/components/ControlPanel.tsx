@@ -3,6 +3,7 @@
 import { useMemo, type ChangeEvent } from 'react';
 import clsx from 'clsx';
 import { dataset, orderedWaypoints } from '@/data/mockCampaign';
+import { LifeTimeline } from './LifeTimeline';
 import { usePlaybackStore } from '@/state/playback-store';
 import { getTrackById, nextWaypoint, previousWaypoint } from '@/utils/geo';
 import { modeIcon } from '@/utils/format';
@@ -256,6 +257,8 @@ export function ControlPanel() {
           </p>
         </div>
       </div>
+
+      <LifeTimeline />
 
       <div className="panel-section" aria-label="Legend">
         <h2>Legend</h2>

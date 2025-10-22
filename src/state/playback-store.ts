@@ -20,6 +20,7 @@ interface PlaybackStore {
   regionOverlayVisible: boolean;
   eventOverlayVisible: boolean;
   timeFilter: TimeFilterState;
+  highlightedLifeEventId?: string;
   setActiveTrack: (trackId: string) => void;
   toggleTrack: (trackId: string) => void;
   setWaypoint: (waypointId: string) => void;
@@ -29,6 +30,7 @@ interface PlaybackStore {
   setRegionOverlayVisible: (value: boolean) => void;
   setEventOverlayVisible: (value: boolean) => void;
   updateTimeFilter: (payload: Partial<TimeFilterState>) => void;
+  setHighlightedLifeEvent: (id?: string) => void;
 }
 
 const initialVisibleTracks = dataset.tracks.reduce<Record<string, boolean>>((acc, track) => {
@@ -51,6 +53,7 @@ export const usePlaybackStore = create<PlaybackStore>((set) => ({
   regionOverlayVisible: true,
   eventOverlayVisible: true,
   timeFilter: { enabled: false },
+  highlightedLifeEventId: undefined,
   setActiveTrack: (trackId) => set({ activeTrackId: trackId, currentWaypointId: getFirstWaypointId(trackId) }),
   toggleTrack: (trackId) =>
     set((state) => ({
@@ -75,7 +78,8 @@ export const usePlaybackStore = create<PlaybackStore>((set) => ({
         ...payload,
         enabled: payload.enabled ?? state.timeFilter.enabled
       }
-    }))
+    })),
+  setHighlightedLifeEvent: (id) => set({ highlightedLifeEventId: id })
 }));
 
 const getFirstWaypointId = (trackId: string): string => {

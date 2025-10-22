@@ -3,14 +3,17 @@ import { IM_Fell_DW_Pica, Source_Sans_3 } from 'next/font/google';
 import './globals.css';
 
 const fell = IM_Fell_DW_Pica({
-  weight: ['400'],
+  weight: '400',
   subsets: ['latin'],
-  variable: '--font-fell'
+  variable: '--font-fell',
+  display: 'swap',
+  adjustFontFallback: false
 });
 
 const sourceSans = Source_Sans_3({
   subsets: ['latin'],
-  variable: '--font-source'
+  variable: '--font-source',
+  display: 'swap'
 });
 
 export const metadata: Metadata = {

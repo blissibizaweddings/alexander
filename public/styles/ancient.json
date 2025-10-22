@@ -1,7 +1,6 @@
 {
   "version": 8,
   "name": "Alexander Antique",
-  "pitch": 0,
   "sources": {
     "openmaptiles": {
       "type": "vector",
@@ -15,7 +14,7 @@
       "id": "background",
       "type": "background",
       "paint": {
-        "background-color": "#f4eadd"
+        "background-color": "#f4ecdc"
       }
     },
     {
@@ -24,7 +23,7 @@
       "source": "openmaptiles",
       "source-layer": "water",
       "paint": {
-        "fill-color": "#9eb7c0",
+        "fill-color": "#cfdadf",
         "fill-opacity": 0.85
       }
     },
@@ -34,9 +33,9 @@
       "source": "openmaptiles",
       "source-layer": "waterway",
       "paint": {
-        "line-color": "#7da0a9",
-        "line-width": 0.7,
-        "line-opacity": 0.7
+        "line-color": "#b1c0c6",
+        "line-width": 0.8,
+        "line-opacity": 0.65
       }
     },
     {
@@ -45,8 +44,8 @@
       "source": "openmaptiles",
       "source-layer": "landcover",
       "paint": {
-        "fill-color": "#efe1c3",
-        "fill-opacity": 0.65
+        "fill-color": "#ead7b5",
+        "fill-opacity": 0.55
       }
     },
     {
@@ -55,34 +54,8 @@
       "source": "openmaptiles",
       "source-layer": "landuse",
       "paint": {
-        "fill-color": "#ead7b5",
-        "fill-opacity": 0.55
-      }
-    },
-    {
-      "id": "boundaries-country",
-      "type": "line",
-      "source": "openmaptiles",
-      "source-layer": "boundary",
-      "filter": ["==", ["get", "admin_level"], 2],
-      "paint": {
-        "line-color": "#8d684a",
-        "line-width": 1.2,
-        "line-dasharray": [2, 2],
-        "line-opacity": 0.7
-      }
-    },
-    {
-      "id": "boundaries-region",
-      "type": "line",
-      "source": "openmaptiles",
-      "source-layer": "boundary",
-      "filter": ["==", ["get", "admin_level"], 4],
-      "paint": {
-        "line-color": "#af9370",
-        "line-width": 0.8,
-        "line-dasharray": [1, 2],
-        "line-opacity": 0.6
+        "fill-color": "#e2c8a2",
+        "fill-opacity": 0.45
       }
     },
     {
@@ -92,9 +65,9 @@
       "source-layer": "transportation",
       "filter": ["in", ["get", "class"], "motorway", "trunk", "primary"],
       "paint": {
-        "line-color": "#d3b38a",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.25, 8, 1.2],
-        "line-opacity": 0.65
+        "line-color": "#c0975a",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.3, 8, 1.4],
+        "line-opacity": 0.55
       }
     },
     {
@@ -104,8 +77,8 @@
       "source-layer": "transportation",
       "filter": ["in", ["get", "class"], "secondary", "tertiary", "minor"],
       "paint": {
-        "line-color": "#dec6a2",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.15, 8, 0.8],
+        "line-color": "#d8b98a",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.15, 8, 0.9],
         "line-opacity": 0.4
       }
     },
@@ -118,14 +91,14 @@
       "layout": {
         "text-field": ["coalesce", ["get", "name:latin"], ["get", "name"]],
         "text-font": ["Open Sans Bold"],
-        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 10, 8, 16],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 3, 11, 8, 17],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.1
+        "text-letter-spacing": 0.12
       },
       "paint": {
-        "text-color": "#5b4636",
-        "text-halo-color": "rgba(244, 234, 221, 0.88)",
-        "text-halo-width": 1.4
+        "text-color": "#5b3d1d",
+        "text-halo-color": "rgba(244, 236, 220, 0.88)",
+        "text-halo-width": 1.6
       }
     },
     {
@@ -139,12 +112,12 @@
         "text-font": ["Open Sans Regular"],
         "text-size": ["interpolate", ["linear"], ["zoom"], 4, 9, 8, 13],
         "text-transform": "uppercase",
-        "text-letter-spacing": 0.08
+        "text-letter-spacing": 0.1
       },
       "paint": {
-        "text-color": "#6d5641",
-        "text-halo-color": "rgba(244, 234, 221, 0.85)",
-        "text-halo-width": 1.1
+        "text-color": "#63482a",
+        "text-halo-color": "rgba(244, 236, 220, 0.82)",
+        "text-halo-width": 1.2
       }
     },
     {
@@ -155,11 +128,11 @@
       "layout": {
         "text-field": ["coalesce", ["get", "name:latin"], ["get", "name"]],
         "text-font": ["Open Sans Italic"],
-        "text-size": ["interpolate", ["linear"], ["zoom"], 4, 10, 8, 14]
+        "text-size": ["interpolate", ["linear"], ["zoom"], 4, 11, 8, 14]
       },
       "paint": {
-        "text-color": "#506d78",
-        "text-halo-color": "rgba(244, 234, 221, 0.85)",
+        "text-color": "#6a7c86",
+        "text-halo-color": "rgba(244, 236, 220, 0.75)",
         "text-halo-width": 1.0
       }
     }

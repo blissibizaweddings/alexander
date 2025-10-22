@@ -13,13 +13,13 @@ import {
   buildTrackLineFeatures,
   buildWaypointFeatures,
   buildTerritoryFeatures,
+  buildLifeEventFeatures,
   buildAncientLabelFeatures,
   getTrackById,
   getWaypointById
 } from '@/utils/geo';
-import { modeIcon } from '@/utils/format';
 
-const FALLBACK_MAP_STYLE = '/styles/ancient.json';
+const FALLBACK_MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const MAP_STYLE = process.env.NEXT_PUBLIC_MAP_STYLE_URL ?? FALLBACK_MAP_STYLE;
 
 const BASE_SPEED_METERS_PER_SEC = 20; // tuned for smooth playback
@@ -102,6 +102,20 @@ export function MapCanvas() {
   const markerRef = useRef<maplibregl.Marker | null>(null);
   const animationRef = useRef<AnimationState>({ distanceTraveled: 0 });
 
+  const updateMarkerAppearance = (mode: string) => {
+    const marker = markerRef.current;
+    if (!marker) return;
+    const element = marker.getElement();
+    element.classList.remove('marker--horse', 'marker--foot', 'marker--ship');
+    if (mode === 'ship') {
+      element.classList.add('marker--ship');
+    } else if (mode === 'foot') {
+      element.classList.add('marker--foot');
+    } else {
+      element.classList.add('marker--horse');
+    }
+  };
+
   const {
     activeTrackId,
     currentWaypointId,
@@ -137,9 +151,7 @@ export function MapCanvas() {
     const initializeMap = async () => {
       const initialTrackId = initialActiveTrackRef.current;
       const initialWaypointId = initialWaypointRef.current;
-      const resolvedTrackId = initialTrackId ?? dataset.tracks[0]?.id ?? 'track';
-      const resolvedWaypointId = initialWaypointId ?? (dataset.waypoints.find((wp) => wp.trackId === resolvedTrackId)?.id ?? dataset.waypoints[0]?.id ?? 'wp');
-      let styleToUse = MAP_STYLE;
+            let styleToUse = MAP_STYLE;
       const isRemoteStyle = /^https?:/i.test(MAP_STYLE);
       if (isRemoteStyle && MAP_STYLE !== FALLBACK_MAP_STYLE) {
         try {
@@ -165,6 +177,12 @@ export function MapCanvas() {
         zoom: 4,
         attributionControl: true
       });
+      const initialTrack = dataset.tracks.find((track) => track.kind === 'land') ?? dataset.tracks[0];
+      const initialWaypoint = initialTrack
+        ? dataset.waypoints
+            .filter((wp) => wp.trackId === initialTrack.id)
+            .sort((a, b) => a.seq - b.seq)[0]
+        : dataset.waypoints[0];
       let hasAppliedFallbackStyle = styleToUse === FALLBACK_MAP_STYLE;
       map.on('error', (event) => {
         if (!hasAppliedFallbackStyle && !map.isStyleLoaded()) {
@@ -182,7 +200,7 @@ export function MapCanvas() {
       map.on('load', () => {
         map.addSource('territories', {
           type: 'geojson',
-          data: buildTerritoryFeatures(resolvedWaypointId)
+          data: buildTerritoryFeatures(initialWaypoint?.id ?? currentWaypointId)
         });
 
         map.addLayer({
@@ -194,14 +212,14 @@ export function MapCanvas() {
               'match',
               ['get', 'controller'],
               'macedon',
-              '#b47d2b',
+              '#c48b45',
               'allies',
               '#2f4858',
               'persia',
               '#7a1f2a',
               '#a57c4f'
             ],
-            'fill-opacity': 0.32
+            'fill-opacity': 0.18
           }
         });
 
@@ -214,16 +232,67 @@ export function MapCanvas() {
               'match',
               ['get', 'controller'],
               'macedon',
-              '#b47d2b',
+              '#c48b45',
               'allies',
               '#2f4858',
               'persia',
               '#7a1f2a',
               '#8c6b3a'
             ],
-            'line-width': 1.4,
-            'line-opacity': 0.8
+            'line-width': 1.1,
+            'line-opacity': 0.7
           }
+        });
+
+        map.addSource('life-events', {
+          type: 'geojson',
+          data: buildLifeEventFeatures()
+        });
+
+        map.addLayer({
+          id: 'life-events-circle',
+          type: 'circle',
+          source: 'life-events',
+          paint: {
+            'circle-radius': [
+              'case',
+              ['boolean', ['feature-state', 'highlighted'], false],
+              8,
+              5.5
+            ],
+            'circle-color': '#a1632e',
+            'circle-stroke-color': '#f4ecdc',
+            'circle-stroke-width': 1.5,
+            'circle-opacity': 0.85
+          }
+        });
+
+        map.addLayer({
+          id: 'life-events-labels',
+          type: 'symbol',
+          source: 'life-events',
+          layout: {
+            'text-field': ['get', 'title'],
+            'text-font': ['Open Sans Semibold'],
+            'text-size': [
+              'case',
+              ['boolean', ['feature-state', 'highlighted'], false],
+              12,
+              10
+            ],
+            'text-offset': [0, 1.2],
+            'text-anchor': 'top',
+            'text-optional': true
+          },
+          paint: {
+            'text-color': '#51361f',
+            'text-halo-color': 'rgba(244, 236, 220, 0.85)',
+            'text-halo-width': 1
+          }
+        });
+
+        dataset.lifeTimeline.forEach((event) => {
+          map.setFeatureState({ source: 'life-events', id: event.id }, { highlighted: false });
         });
 
         dataset.tracks.forEach((track) => {
@@ -258,7 +327,7 @@ export function MapCanvas() {
             type: 'circle',
             source: `track-waypoints-${track.id}`,
             paint: {
-              'circle-radius': ["interpolate", ["linear"], ["zoom"], 4, 3.5, 7, 7],
+              'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 4.5, 7, 10],
               'circle-color': '#fff',
               'circle-stroke-color': track.color,
               'circle-stroke-width': 2
@@ -321,7 +390,7 @@ export function MapCanvas() {
         map.addSource('active-track-progress', {
           type: 'geojson',
           lineMetrics: true,
-          data: buildProgressGeoJSON(resolvedTrackId, resolvedWaypointId)
+          data: buildProgressGeoJSON(initialTrack?.id ?? activeTrackId, initialWaypoint?.id ?? currentWaypointId)
         });
 
         map.addLayer({
@@ -383,7 +452,7 @@ export function MapCanvas() {
           }
         });
 
-        setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
+        setActiveTrackProgress(map, initialTrack?.id ?? activeTrackId, initialWaypoint?.id ?? currentWaypointId);
       });
     };
 
@@ -420,7 +489,7 @@ export function MapCanvas() {
     const map = mapRef.current;
     if (!map?.isStyleLoaded()) return;
     const regionVisibility = regionOverlayVisible ? 'visible' : 'none';
-    const layers = ['regions-fill', 'regions-outline', 'territories-fill', 'territories-outline', 'ancient-labels'];
+    const layers = ['regions-fill', 'regions-outline', 'territories-fill', 'territories-outline', 'ancient-labels', 'life-events-circle', 'life-events-labels'];
     layers.forEach((layerId) => {
       if (map.getLayer(layerId)) {
         map.setLayoutProperty(layerId, 'visibility', regionVisibility);
@@ -447,13 +516,22 @@ export function MapCanvas() {
     if (territorySource) {
       territorySource.setData(buildTerritoryFeatures(currentWaypointId));
     }
-  }, [currentWaypointId]);
+    setActiveTrackProgress(map, activeTrackId, currentWaypointId);
+  }, [currentWaypointId, activeTrackId]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map?.isStyleLoaded()) return;
-    setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
-  }, [activeTrackId, currentWaypointId]);
+    const lifeSource = map.getSource('life-events') as maplibregl.GeoJSONSource | undefined;
+    if (!lifeSource) return;
+    dataset.lifeTimeline.forEach((event) => {
+      map.setFeatureState({ source: 'life-events', id: event.id }, { highlighted: event.id === highlightedLifeEventId });
+    });
+    const highlightedEvent = dataset.lifeTimeline.find((event) => event.id === highlightedLifeEventId);
+    if (highlightedEvent?.coordinates) {
+      map.easeTo({ center: highlightedEvent.coordinates, zoom: Math.max(map.getZoom(), 5.5), duration: 1200 });
+    }
+  }, [highlightedLifeEventId]);
 
   // Update marker location when waypoint changes.
   useEffect(() => {
@@ -463,16 +541,11 @@ export function MapCanvas() {
     if (!map || !waypoint) return;
     if (!markerRef.current) {
       const el = document.createElement('div');
-      el.className = 'marker';
-      el.style.width = '32px';
-      el.style.height = '32px';
-      el.style.borderRadius = '50%';
-      el.style.display = 'grid';
-      el.style.placeItems = 'center';
-      el.style.background = 'rgba(178, 112, 61, 0.85)';
-      el.style.color = '#fff';
-      el.style.fontSize = '18px';
-      el.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.25)';
+      el.className = 'alexander-marker marker--horse';
+      el.setAttribute('aria-hidden', 'true');
+      const sprite = document.createElement('span');
+      sprite.className = 'alexander-marker__sprite';
+      el.appendChild(sprite);
       markerRef.current = new maplibregl.Marker(el).setLngLat(waypoint.coordinates).addTo(map);
     } else {
       markerRef.current.setLngLat(waypoint.coordinates);
@@ -480,7 +553,7 @@ export function MapCanvas() {
 
     if (track) {
       const defaultMode = track.transportDefault === 'mixed' ? 'horse' : track.transportDefault;
-      markerRef.current?.getElement().replaceChildren(document.createTextNode(modeIcon(defaultMode)));
+      updateMarkerAppearance(defaultMode);
     }
 
     if (map && waypoint.coordinates) {
@@ -510,13 +583,13 @@ export function MapCanvas() {
         cancelAnimationFrame(animationRef.current.rafId);
       }
       animationRef.current = { distanceTraveled: 0 };
-      setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
+      setActiveTrackProgress(map, activeTrackId, currentWaypointId);
       return;
     }
 
     if (!current || !target) {
       setPlaying(false);
-      setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
+      setActiveTrackProgress(map, activeTrackId, currentWaypointId);
       return;
     }
 
@@ -542,8 +615,7 @@ export function MapCanvas() {
       segmentId: segment.id
     };
 
-    const element = marker.getElement();
-    element.textContent = modeIcon(segment.transportMode);
+    updateMarkerAppearance(segment.transportMode);
 
     let lastTime = performance.now();
 
@@ -562,12 +634,29 @@ export function MapCanvas() {
 
       const distanceKm = animationState.distanceTraveled / 1000;
       const along = turf.along(segment.geometry, distanceKm, { units: 'kilometers' });
+      if (!along || !along.geometry || !along.geometry.coordinates) {
+        marker.setLngLat(target.coordinates);
+        setActiveTrackProgress(map, activeTrackId, target.id);
+        setWaypoint(target.id);
+        return;
+      }
+
       const coords = along.geometry.coordinates as [number, number];
+      if (!coords || Number.isNaN(coords[0]) || Number.isNaN(coords[1])) {
+        marker.setLngLat(target.coordinates);
+        setActiveTrackProgress(map, activeTrackId, target.id);
+        setWaypoint(target.id);
+        return;
+      }
       marker.setLngLat(coords);
 
       const partialSlice = turf.lineSlice(turf.point(current.coordinates), along, segment.geometry);
       const partialLine = partialSlice.geometry as LineString;
-      setActiveTrackProgress(map, activeTrackId, current.id, partialLine);
+      if (!partialLine || !partialLine.coordinates?.length) {
+        setActiveTrackProgress(map, activeTrackId, current.id);
+      } else {
+        setActiveTrackProgress(map, activeTrackId, current.id, partialLine);
+      }
 
       animationRef.current = { ...animationState, rafId: requestAnimationFrame(step) };
     };

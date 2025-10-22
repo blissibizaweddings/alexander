@@ -97,6 +97,7 @@ export interface LifeEvent {
   title: string;
   occurredOn?: string;
   location?: string;
+  coordinates?: [number, number];
   description: string;
 }
 
