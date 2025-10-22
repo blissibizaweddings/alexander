@@ -18,7 +18,30 @@ body {
 .main-grid {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(320px, 480px);
-  height: 100vh;
+  min-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  .main-grid {
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-grid {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 1024px) {
+  @supports (height: 100dvh) {
+    .main-grid {
+      height: 100dvh;
+      max-height: 100dvh;
+    }
+  }
 }
 
 @media (max-width: 1024px) {
@@ -28,8 +51,50 @@ body {
   }
 }
 
-.map-container {
+.map-panel {
   position: relative;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (min-width: 1024px) {
+  .map-panel {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  @supports (height: 100dvh) {
+    .map-panel {
+      height: 100dvh;
+    }
+  }
+}
+
+.map-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.info-panel {
+  background: linear-gradient(135deg, rgba(242, 237, 227, 0.96), rgba(230, 217, 198, 0.92));
+}
+
+@media (min-width: 1024px) {
+  .info-panel {
+    max-height: 100vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  @supports (height: 100dvh) {
+    .info-panel {
+      max-height: 100dvh;
+    }
+  }
 }
 
 .maplibregl-canvas-container {
@@ -40,7 +105,6 @@ body {
   background: linear-gradient(135deg, rgba(242, 237, 227, 0.96), rgba(230, 217, 198, 0.92));
   border-left: 1px solid rgba(44, 27, 18, 0.1);
   box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
-  overflow-y: auto;
 }
 
 .timeline-track {

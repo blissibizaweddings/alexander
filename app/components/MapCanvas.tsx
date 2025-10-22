@@ -125,7 +125,8 @@ export function MapCanvas() {
     regionOverlayVisible,
     eventOverlayVisible,
     setWaypoint,
-    setPlaying
+    setPlaying,
+    highlightedLifeEventId
   } = usePlaybackStore((state) => ({
     activeTrackId: state.activeTrackId,
     currentWaypointId: state.currentWaypointId,
@@ -135,7 +136,8 @@ export function MapCanvas() {
     regionOverlayVisible: state.regionOverlayVisible,
     eventOverlayVisible: state.eventOverlayVisible,
     setWaypoint: state.setWaypoint,
-    setPlaying: state.setPlaying
+    setPlaying: state.setPlaying,
+    highlightedLifeEventId: state.highlightedLifeEventId
   }));
 
   const initialActiveTrackRef = useRef(activeTrackId);
@@ -603,12 +605,23 @@ export function MapCanvas() {
       return;
     }
 
-    const totalLengthKm = turf.length(segment.geometry, { units: 'kilometers' });
+    const segmentCoordinates = segment.geometry?.coordinates;
+    if (!Array.isArray(segmentCoordinates) || segmentCoordinates.length < 2) {
+      marker.setLngLat(target.coordinates);
+      setActiveTrackProgress(map, activeTrackId, target.id);
+      setWaypoint(target.id);
+      return;
+    }
+
+    const segmentLine = turf.lineString(segmentCoordinates);
+    const totalLengthKm = turf.length(segmentLine, { units: 'kilometers' });
     const totalLengthMeters = totalLengthKm * 1000;
     const durationSeconds = (segment.estDurationMinutes ?? 180) * 60;
     const baseSpeed = durationSeconds > 0 ? totalLengthMeters / durationSeconds : BASE_SPEED_METERS_PER_SEC;
     const modeMultiplier = TRANSPORT_SPEED_MULTIPLIERS[segment.transportMode] ?? 1;
-    const speed = baseSpeed * playbackSpeed * modeMultiplier;
+    const rawSpeed = baseSpeed * modeMultiplier;
+    const minimumSpeed = BASE_SPEED_METERS_PER_SEC * modeMultiplier;
+    const speed = Math.max(rawSpeed, minimumSpeed) * playbackSpeed;
 
     const animationState: AnimationState = {
       distanceTraveled: animationRef.current.segmentId === segment.id ? animationRef.current.distanceTraveled : 0,
@@ -632,26 +645,46 @@ export function MapCanvas() {
         return;
       }
 
-      const distanceKm = animationState.distanceTraveled / 1000;
-      const along = turf.along(segment.geometry, distanceKm, { units: 'kilometers' });
-      if (!along || !along.geometry || !along.geometry.coordinates) {
+      const distanceKm = Math.min(animationState.distanceTraveled / 1000, totalLengthKm);
+
+      let coords: [number, number] | undefined;
+      let partialLine: LineString | undefined;
+
+      try {
+        const along = turf.along(segmentLine, distanceKm, { units: 'kilometers' });
+        if (along?.geometry?.type === 'Point') {
+          coords = along.geometry.coordinates as [number, number];
+        }
+
+        const partialSlice = turf.lineSliceAlong(segmentLine, 0, distanceKm, { units: 'kilometers' });
+        if (partialSlice.geometry?.type === 'LineString') {
+          partialLine = partialSlice.geometry as LineString;
+        } else if (partialSlice.geometry?.type === 'MultiLineString') {
+          const flattened = partialSlice.geometry.coordinates.flat();
+          if (flattened.length >= 2) {
+            partialLine = {
+              type: 'LineString',
+              coordinates: flattened as [number, number][]
+            };
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to compute segment animation; skipping ahead.', error);
         marker.setLngLat(target.coordinates);
         setActiveTrackProgress(map, activeTrackId, target.id);
         setWaypoint(target.id);
         return;
       }
 
-      const coords = along.geometry.coordinates as [number, number];
       if (!coords || Number.isNaN(coords[0]) || Number.isNaN(coords[1])) {
         marker.setLngLat(target.coordinates);
         setActiveTrackProgress(map, activeTrackId, target.id);
         setWaypoint(target.id);
         return;
       }
+
       marker.setLngLat(coords);
 
-      const partialSlice = turf.lineSlice(turf.point(current.coordinates), along, segment.geometry);
-      const partialLine = partialSlice.geometry as LineString;
       if (!partialLine || !partialLine.coordinates?.length) {
         setActiveTrackProgress(map, activeTrackId, current.id);
       } else {
@@ -671,5 +704,5 @@ export function MapCanvas() {
     };
   }, [isPlaying, activeTrackId, currentWaypointId, playbackSpeed, setWaypoint, setPlaying]);
 
-  return <div ref={containerRef} className="map-container w-full h-full" role="presentation" aria-hidden />;
+  return <div ref={containerRef} className="map-viewport" role="presentation" aria-hidden />;
 }
