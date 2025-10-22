@@ -18,7 +18,7 @@ import { modeIcon } from '@/utils/format';
 
 const MAP_STYLE =
   process.env.NEXT_PUBLIC_MAP_STYLE_URL ??
-  'https://api.maptiler.com/maps/vintage/style.json?key=YOUR_MAPTILER_KEY';
+  'https://api.maptiler.com/maps/vintage/style.json?key=GzmCA0SzQ8ObJaXMyL2p';
 
 const BASE_SPEED_METERS_PER_SEC = 20; // tuned for smooth playback
 
