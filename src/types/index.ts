@@ -70,6 +70,28 @@ export interface RegionOverlay {
   geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon;
 }
 
+export type TerritoryController = 'macedon' | 'allies' | 'persia';
+
+export interface TerritoryFeature {
+  id: string;
+  name: string;
+  controller: TerritoryController;
+  geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon;
+}
+
+export interface TerritorySnapshot {
+  waypointId: string;
+  description?: string;
+  territories: TerritoryFeature[];
+}
+
+export interface AncientLabel {
+  id: string;
+  name: string;
+  kind: 'region' | 'city' | 'territory';
+  coordinates: [number, number];
+}
+
 export interface CampaignDataset {
   people: Person[];
   tracks: Track[];
@@ -77,4 +99,6 @@ export interface CampaignDataset {
   segments: RouteSegment[];
   events: EventOverlay[];
   regions: RegionOverlay[];
+  territoryTimeline: TerritorySnapshot[];
+  ancientLabels: AncientLabel[];
 }

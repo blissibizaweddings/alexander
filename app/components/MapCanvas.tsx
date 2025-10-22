@@ -4,19 +4,22 @@ import { useEffect, useRef } from 'react';
 import maplibregl, { type Map } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import * as turf from '@turf/turf';
-import { dataset } from '@/data/mockCampaign';
+import type { FeatureCollection, LineString } from 'geojson';
+import { dataset, orderedWaypoints, segmentsForTrack } from '@/data/mockCampaign';
 import { usePlaybackStore } from '@/state/playback-store';
 import {
   buildEventFeatures,
   buildRegionFeatures,
   buildTrackLineFeatures,
   buildWaypointFeatures,
+  buildTerritoryFeatures,
+  buildAncientLabelFeatures,
   getTrackById,
   getWaypointById
 } from '@/utils/geo';
 import { modeIcon } from '@/utils/format';
 
-const FALLBACK_MAP_STYLE = 'https://demotiles.maplibre.org/style.json';
+const FALLBACK_MAP_STYLE = '/styles/ancient.json';
 const MAP_STYLE = process.env.NEXT_PUBLIC_MAP_STYLE_URL ?? FALLBACK_MAP_STYLE;
 
 const BASE_SPEED_METERS_PER_SEC = 20; // tuned for smooth playback
@@ -26,6 +29,65 @@ const TRANSPORT_SPEED_MULTIPLIERS: Record<string, number> = {
   horse: 1.0,
   ship: 1.3,
   supply: 0.5
+};
+
+const buildProgressGeoJSON = (
+  trackId: string,
+  waypointId: string,
+  partialLine?: LineString
+): FeatureCollection<LineString> => {
+  const waypoints = orderedWaypoints(trackId);
+  const currentIndex = waypoints.findIndex((wp) => wp.id === waypointId);
+  const features: FeatureCollection<LineString>['features'] = [];
+  if (currentIndex > 0) {
+    const segments = segmentsForTrack(trackId);
+    for (let index = 0; index < currentIndex; index += 1) {
+      const from = waypoints[index];
+      const to = waypoints[index + 1];
+      if (!from || !to) continue;
+      const segment = segments.find(
+        (candidate) =>
+          candidate.fromWaypointId === from.id && candidate.toWaypointId === to.id
+      );
+      if (segment) {
+        features.push({
+          type: 'Feature',
+          id: `progress-${segment.id}`,
+          properties: {
+            trackId,
+            state: 'completed'
+          },
+          geometry: segment.geometry
+        });
+      }
+    }
+  }
+  if (partialLine && partialLine.coordinates.length > 1) {
+    features.push({
+      type: 'Feature',
+      id: 'progress-active',
+      properties: {
+        trackId,
+        state: 'active'
+      },
+      geometry: partialLine
+    });
+  }
+  return {
+    type: 'FeatureCollection',
+    features
+  };
+};
+
+const setActiveTrackProgress = (
+  map: maplibregl.Map,
+  trackId: string,
+  waypointId: string,
+  partialLine?: LineString
+) => {
+  const source = map.getSource('active-track-progress') as maplibregl.GeoJSONSource | undefined;
+  if (!source) return;
+  source.setData(buildProgressGeoJSON(trackId, waypointId, partialLine));
 };
 
 type AnimationState = {
@@ -62,127 +124,277 @@ export function MapCanvas() {
     setPlaying: state.setPlaying
   }));
 
+  const initialActiveTrackRef = useRef(activeTrackId);
+  const initialWaypointRef = useRef(currentWaypointId);
+
   // Initialize map once.
   useEffect(() => {
     if (!containerRef.current || mapRef.current) {
       return;
     }
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: MAP_STYLE,
-      center: [22.5, 40.8],
-      zoom: 4,
-      attributionControl: true
-    });
-    let hasAppliedFallbackStyle = MAP_STYLE === FALLBACK_MAP_STYLE;
-    map.on('error', (event) => {
-      if (!hasAppliedFallbackStyle && !map.isStyleLoaded()) {
-        const status = (event as { error?: { status?: number } })?.error?.status;
-        if (typeof status !== 'number' || status >= 400) {
-          map.setStyle(FALLBACK_MAP_STYLE);
-          hasAppliedFallbackStyle = true;
+    let isMounted = true;
+
+    const initializeMap = async () => {
+      const initialTrackId = initialActiveTrackRef.current;
+      const initialWaypointId = initialWaypointRef.current;
+      const resolvedTrackId = initialTrackId ?? dataset.tracks[0]?.id ?? 'track';
+      const resolvedWaypointId = initialWaypointId ?? (dataset.waypoints.find((wp) => wp.trackId === resolvedTrackId)?.id ?? dataset.waypoints[0]?.id ?? 'wp');
+      let styleToUse = MAP_STYLE;
+      const isRemoteStyle = /^https?:/i.test(MAP_STYLE);
+      if (isRemoteStyle && MAP_STYLE !== FALLBACK_MAP_STYLE) {
+        try {
+          const response = await fetch(MAP_STYLE);
+          if (!response.ok) {
+            console.warn(`Map style responded with ${response.status}; using fallback tiles instead.`);
+            styleToUse = FALLBACK_MAP_STYLE;
+          }
+        } catch (error) {
+          console.warn('Failed to fetch primary map style; using fallback tiles instead.', error);
+          styleToUse = FALLBACK_MAP_STYLE;
         }
       }
-    });
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
-    mapRef.current = map;
 
-    map.on('load', () => {
-      dataset.tracks.forEach((track) => {
-        map.addSource(`track-lines-${track.id}`, {
+      if (!isMounted || !containerRef.current) {
+        return;
+      }
+
+      const map = new maplibregl.Map({
+        container: containerRef.current,
+        style: styleToUse,
+        center: [22.5, 40.8],
+        zoom: 4,
+        attributionControl: true
+      });
+      let hasAppliedFallbackStyle = styleToUse === FALLBACK_MAP_STYLE;
+      map.on('error', (event) => {
+        if (!hasAppliedFallbackStyle && !map.isStyleLoaded()) {
+          const status = (event as { error?: { status?: number } })?.error?.status;
+          if (typeof status !== 'number' || status >= 400) {
+            console.warn('Runtime style error encountered; switching to fallback tiles.', event);
+            map.setStyle(FALLBACK_MAP_STYLE);
+            hasAppliedFallbackStyle = true;
+          }
+        }
+      });
+      map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }));
+      mapRef.current = map;
+
+      map.on('load', () => {
+        map.addSource('territories', {
           type: 'geojson',
-          data: buildTrackLineFeatures(track)
+          data: buildTerritoryFeatures(resolvedWaypointId)
         });
 
         map.addLayer({
-          id: `track-lines-${track.id}`,
+          id: 'territories-fill',
+          type: 'fill',
+          source: 'territories',
+          paint: {
+            'fill-color': [
+              'match',
+              ['get', 'controller'],
+              'macedon',
+              '#b47d2b',
+              'allies',
+              '#2f4858',
+              'persia',
+              '#7a1f2a',
+              '#a57c4f'
+            ],
+            'fill-opacity': 0.32
+          }
+        });
+
+        map.addLayer({
+          id: 'territories-outline',
           type: 'line',
-          source: `track-lines-${track.id}`,
+          source: 'territories',
+          paint: {
+            'line-color': [
+              'match',
+              ['get', 'controller'],
+              'macedon',
+              '#b47d2b',
+              'allies',
+              '#2f4858',
+              'persia',
+              '#7a1f2a',
+              '#8c6b3a'
+            ],
+            'line-width': 1.4,
+            'line-opacity': 0.8
+          }
+        });
+
+        dataset.tracks.forEach((track) => {
+          map.addSource(`track-lines-${track.id}`, {
+            type: 'geojson',
+            data: buildTrackLineFeatures(track)
+          });
+
+          map.addLayer({
+            id: `track-lines-${track.id}`,
+            type: 'line',
+            source: `track-lines-${track.id}`,
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round'
+            },
+            paint: {
+              'line-color': track.color,
+              'line-width': ["interpolate", ["linear"], ["zoom"], 3, 1, 7, 3.5],
+              'line-opacity': track.kind === 'enemy' ? 0.6 : 0.85,
+              'line-dasharray': track.kind === 'sea' ? [2, 2] : [1, 0]
+            }
+          });
+
+          map.addSource(`track-waypoints-${track.id}`, {
+            type: 'geojson',
+            data: buildWaypointFeatures(track)
+          });
+
+          map.addLayer({
+            id: `track-waypoints-${track.id}`,
+            type: 'circle',
+            source: `track-waypoints-${track.id}`,
+            paint: {
+              'circle-radius': ["interpolate", ["linear"], ["zoom"], 4, 3.5, 7, 7],
+              'circle-color': '#fff',
+              'circle-stroke-color': track.color,
+              'circle-stroke-width': 2
+            }
+          });
+        });
+
+        map.addSource('events', {
+          type: 'geojson',
+          data: buildEventFeatures()
+        });
+
+        map.addLayer({
+          id: 'events-fill',
+          type: 'fill',
+          source: 'events',
+          paint: {
+            'fill-color': '#b54936',
+            'fill-opacity': 0.25
+          }
+        });
+
+        map.addLayer({
+          id: 'events-outline',
+          type: 'line',
+          source: 'events',
+          paint: {
+            'line-color': '#7a1f2a',
+            'line-width': 2,
+            'line-dasharray': [1, 1.5]
+          }
+        });
+
+        map.addSource('regions', {
+          type: 'geojson',
+          data: buildRegionFeatures()
+        });
+
+        map.addLayer({
+          id: 'regions-fill',
+          type: 'fill',
+          source: 'regions',
+          paint: {
+            'fill-color': '#d9c3a5',
+            'fill-opacity': 0.18
+          }
+        });
+
+        map.addLayer({
+          id: 'regions-outline',
+          type: 'line',
+          source: 'regions',
+          paint: {
+            'line-color': '#a6875a',
+            'line-width': 1.5,
+            'line-opacity': 0.7
+          }
+        });
+
+        map.addSource('active-track-progress', {
+          type: 'geojson',
+          lineMetrics: true,
+          data: buildProgressGeoJSON(resolvedTrackId, resolvedWaypointId)
+        });
+
+        map.addLayer({
+          id: 'active-track-progress',
+          type: 'line',
+          source: 'active-track-progress',
+          paint: {
+            'line-color': [
+              'case',
+              ['==', ['get', 'state'], 'active'],
+              '#f59e0b',
+              '#d97706'
+            ],
+            'line-width': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              3,
+              3,
+              6,
+              6.5
+            ],
+            'line-opacity': [
+              'case',
+              ['==', ['get', 'state'], 'active'],
+              0.9,
+              0.6
+            ]
+          }
+        });
+
+        map.addSource('ancient-labels', {
+          type: 'geojson',
+          data: buildAncientLabelFeatures()
+        });
+
+        map.addLayer({
+          id: 'ancient-labels',
+          type: 'symbol',
+          source: 'ancient-labels',
           layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
+            'text-field': ['get', 'name'],
+            'text-font': ['Open Sans Bold', 'Open Sans Regular'],
+            'text-size': [
+              'case',
+              ['==', ['get', 'kind'], 'city'],
+              12,
+              ['==', ['get', 'kind'], 'territory'],
+              16,
+              14
+            ],
+            'text-transform': 'uppercase',
+            'text-letter-spacing': 0.12
           },
           paint: {
-            'line-color': track.color,
-            'line-width': ["interpolate", ["linear"], ["zoom"], 3, 1, 7, 3.5],
-            'line-opacity': track.kind === 'enemy' ? 0.6 : 0.85,
-            'line-dasharray': track.kind === 'sea' ? [2, 2] : [1, 0]
+            'text-color': '#4a3210',
+            'text-halo-color': 'rgba(242, 237, 227, 0.78)',
+            'text-halo-width': 1.2
           }
         });
 
-        map.addSource(`track-waypoints-${track.id}`, {
-          type: 'geojson',
-          data: buildWaypointFeatures(track)
-        });
-
-        map.addLayer({
-          id: `track-waypoints-${track.id}`,
-          type: 'circle',
-          source: `track-waypoints-${track.id}`,
-          paint: {
-            'circle-radius': ["interpolate", ["linear"], ["zoom"], 4, 3.5, 7, 7],
-            'circle-color': '#fff',
-            'circle-stroke-color': track.color,
-            'circle-stroke-width': 2
-          }
-        });
+        setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
       });
+    };
 
-      map.addSource('events', {
-        type: 'geojson',
-        data: buildEventFeatures()
-      });
-
-      map.addLayer({
-        id: 'events-fill',
-        type: 'fill',
-        source: 'events',
-        paint: {
-          'fill-color': '#b54936',
-          'fill-opacity': 0.25
-        }
-      });
-
-      map.addLayer({
-        id: 'events-outline',
-        type: 'line',
-        source: 'events',
-        paint: {
-          'line-color': '#7a1f2a',
-          'line-width': 2,
-          'line-dasharray': [1, 1.5]
-        }
-      });
-
-      map.addSource('regions', {
-        type: 'geojson',
-        data: buildRegionFeatures()
-      });
-
-      map.addLayer({
-        id: 'regions-fill',
-        type: 'fill',
-        source: 'regions',
-        paint: {
-          'fill-color': '#d9c3a5',
-          'fill-opacity': 0.18
-        }
-      });
-
-      map.addLayer({
-        id: 'regions-outline',
-        type: 'line',
-        source: 'regions',
-        paint: {
-          'line-color': '#a6875a',
-          'line-width': 1.5,
-          'line-opacity': 0.7
-        }
-      });
-    });
+    void initializeMap();
 
     return () => {
-      map.remove();
+      isMounted = false;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
   }, []);
 
@@ -208,12 +420,12 @@ export function MapCanvas() {
     const map = mapRef.current;
     if (!map?.isStyleLoaded()) return;
     const regionVisibility = regionOverlayVisible ? 'visible' : 'none';
-    if (map.getLayer('regions-fill')) {
-      map.setLayoutProperty('regions-fill', 'visibility', regionVisibility);
-    }
-    if (map.getLayer('regions-outline')) {
-      map.setLayoutProperty('regions-outline', 'visibility', regionVisibility);
-    }
+    const layers = ['regions-fill', 'regions-outline', 'territories-fill', 'territories-outline', 'ancient-labels'];
+    layers.forEach((layerId) => {
+      if (map.getLayer(layerId)) {
+        map.setLayoutProperty(layerId, 'visibility', regionVisibility);
+      }
+    });
   }, [regionOverlayVisible]);
 
   useEffect(() => {
@@ -227,6 +439,21 @@ export function MapCanvas() {
       map.setLayoutProperty('events-outline', 'visibility', eventVisibility);
     }
   }, [eventOverlayVisible]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map?.isStyleLoaded()) return;
+    const territorySource = map.getSource('territories') as maplibregl.GeoJSONSource | undefined;
+    if (territorySource) {
+      territorySource.setData(buildTerritoryFeatures(currentWaypointId));
+    }
+  }, [currentWaypointId]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map?.isStyleLoaded()) return;
+    setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
+  }, [activeTrackId, currentWaypointId]);
 
   // Update marker location when waypoint changes.
   useEffect(() => {
@@ -283,11 +510,13 @@ export function MapCanvas() {
         cancelAnimationFrame(animationRef.current.rafId);
       }
       animationRef.current = { distanceTraveled: 0 };
+      setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
       return;
     }
 
     if (!current || !target) {
       setPlaying(false);
+      setActiveTrackProgress(map, resolvedTrackId, resolvedWaypointId);
       return;
     }
 
@@ -297,6 +526,7 @@ export function MapCanvas() {
 
     if (!segment) {
       setWaypoint(target.id);
+      setActiveTrackProgress(map, activeTrackId, target.id);
       return;
     }
 
@@ -325,6 +555,7 @@ export function MapCanvas() {
       if (animationState.distanceTraveled >= totalLengthMeters) {
         marker.setLngLat(target.coordinates);
         animationRef.current = { distanceTraveled: 0 };
+        setActiveTrackProgress(map, activeTrackId, target.id);
         setWaypoint(target.id);
         return;
       }
@@ -333,6 +564,10 @@ export function MapCanvas() {
       const along = turf.along(segment.geometry, distanceKm, { units: 'kilometers' });
       const coords = along.geometry.coordinates as [number, number];
       marker.setLngLat(coords);
+
+      const partialSlice = turf.lineSlice(turf.point(current.coordinates), along, segment.geometry);
+      const partialLine = partialSlice.geometry as LineString;
+      setActiveTrackProgress(map, activeTrackId, current.id, partialLine);
 
       animationRef.current = { ...animationState, rafId: requestAnimationFrame(step) };
     };

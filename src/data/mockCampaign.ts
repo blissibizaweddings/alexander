@@ -1,9 +1,40 @@
-import type { CampaignDataset, RouteSegment, Track, Waypoint } from '@/types';
-import type { LineString } from 'geojson';
+import type { CampaignDataset, RouteSegment, Track, Waypoint, TerritorySnapshot, TerritoryFeature, AncientLabel } from '@/types';
+import type { LineString, Polygon } from 'geojson';
 
 const createLineString = (coords: [number, number][]): LineString => ({
   type: 'LineString',
   coordinates: coords
+});
+
+const createPolygon = (coords: [number, number][]): Polygon => {
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  const ring = first[0] === last[0] && first[1] === last[1] ? coords : [
+    ...coords,
+    first
+  ];
+  return {
+    type: 'Polygon',
+    coordinates: [ring]
+  };
+};
+
+const cloneTerritory = (territory: TerritoryFeature): TerritoryFeature => ({
+  ...territory,
+  geometry: JSON.parse(JSON.stringify(territory.geometry))
+});
+
+const createSnapshot = (waypointId: string, territories: TerritoryFeature[], description: string): TerritorySnapshot => ({
+  waypointId,
+  description,
+  territories: territories.map(cloneTerritory)
+});
+
+const makeTerritory = (id: string, name: string, controller: TerritoryFeature['controller'], geometry: Polygon): TerritoryFeature => ({
+  id,
+  name,
+  controller,
+  geometry
 });
 
 const alexanderTrack: Track = {
@@ -356,6 +387,101 @@ const waypoints: Waypoint[] = [
   }
 ];
 
+const macedonHeartland = createPolygon([
+  [20.3, 41.6],
+  [23.8, 41.9],
+  [24.2, 39.2],
+  [21.1, 38.4]
+]);
+
+const anatoliaSatrapies = createPolygon([
+  [23.5, 41.9],
+  [31.5, 42.0],
+  [37.2, 38.6],
+  [29.6, 32.8],
+  [24.1, 33.5]
+]);
+
+const levantCoast = createPolygon([
+  [36.6, 36.8],
+  [37.4, 33.1],
+  [34.2, 29.6],
+  [33.1, 33.6]
+]);
+
+const mesopotamiaBasin = createPolygon([
+  [38.2, 37.8],
+  [46.8, 37.8],
+  [47.6, 30.8],
+  [39.0, 30.0]
+]);
+
+const persisHeartland = createPolygon([
+  [46.5, 35.0],
+  [57.5, 35.0],
+  [58.6, 27.0],
+  [49.0, 24.5]
+]);
+
+const stageInitialTerritories: TerritoryFeature[] = [
+  makeTerritory('territory-macedon-core', 'Kingdom of Macedon', 'macedon', macedonHeartland),
+  makeTerritory('territory-persia-anatolia', 'Satrapies of Asia Minor', 'persia', anatoliaSatrapies),
+  makeTerritory('territory-persia-levant', 'Phoenicia and Syria', 'persia', levantCoast),
+  makeTerritory('territory-persia-mesopotamia', 'Mesopotamia', 'persia', mesopotamiaBasin),
+  makeTerritory('territory-persia-core', 'Persis and Media', 'persia', persisHeartland)
+];
+
+const stageAnatoliaSecured: TerritoryFeature[] = [
+  makeTerritory('territory-macedon-core', 'Kingdom of Macedon', 'macedon', macedonHeartland),
+  makeTerritory('territory-macedon-anatolia', 'Anatolian Satrapies', 'macedon', anatoliaSatrapies),
+  makeTerritory('territory-persia-levant', 'Phoenicia and Syria', 'persia', levantCoast),
+  makeTerritory('territory-persia-mesopotamia', 'Mesopotamia', 'persia', mesopotamiaBasin),
+  makeTerritory('territory-persia-core', 'Persis and Media', 'persia', persisHeartland)
+];
+
+const stageLevantSecured: TerritoryFeature[] = [
+  makeTerritory('territory-macedon-core', 'Kingdom of Macedon', 'macedon', macedonHeartland),
+  makeTerritory('territory-macedon-anatolia', 'Anatolian Satrapies', 'macedon', anatoliaSatrapies),
+  makeTerritory('territory-macedon-levant', 'Phoenicia and Syria', 'macedon', levantCoast),
+  makeTerritory('territory-persia-mesopotamia', 'Mesopotamia', 'persia', mesopotamiaBasin),
+  makeTerritory('territory-persia-core', 'Persis and Media', 'persia', persisHeartland)
+];
+
+const stageMesopotamiaSecured: TerritoryFeature[] = [
+  makeTerritory('territory-macedon-core', 'Kingdom of Macedon', 'macedon', macedonHeartland),
+  makeTerritory('territory-macedon-anatolia', 'Anatolian Satrapies', 'macedon', anatoliaSatrapies),
+  makeTerritory('territory-macedon-levant', 'Phoenicia and Syria', 'macedon', levantCoast),
+  makeTerritory('territory-macedon-mesopotamia', 'Mesopotamia', 'macedon', mesopotamiaBasin),
+  makeTerritory('territory-persia-core', 'Persis and Media', 'persia', persisHeartland)
+];
+
+const territoryTimeline: TerritorySnapshot[] = [
+  createSnapshot('wp-pella', stageInitialTerritories, 'Alexander\'s Macedon before the Asian campaign (336–334 BCE)'),
+  createSnapshot('wp-granicus', stageAnatoliaSecured, 'After the Battle of the Granicus (334 BCE)'),
+  createSnapshot('wp-parmenion-granicus', stageAnatoliaSecured, 'Parmenion secures the Macedonian flank at the Granicus'),
+  createSnapshot('wp-issus', stageAnatoliaSecured, 'Following the Battle of Issus (333 BCE)'),
+  createSnapshot('wp-parmenion-issus', stageAnatoliaSecured, 'Parmenion holds the pass at Issus'),
+  createSnapshot('wp-darius-issus', stageAnatoliaSecured, 'Darius retreats toward Syria after Issus'),
+  createSnapshot('wp-tyre', stageLevantSecured, 'After the Siege of Tyre (332 BCE)'),
+  createSnapshot('wp-nearchus-tyre', stageLevantSecured, 'Nearchus commands the fleet during the siege of Tyre'),
+  createSnapshot('wp-gaugamela', stageMesopotamiaSecured, 'After the Battle of Gaugamela (331 BCE)'),
+  createSnapshot('wp-darius-gaugamela', stageMesopotamiaSecured, 'Darius\' final field army at Gaugamela'),
+  createSnapshot('wp-babylon', stageMesopotamiaSecured, 'Babylon submitted to Alexander (331 BCE)'),
+  createSnapshot('wp-nearchus-babylon', stageMesopotamiaSecured, 'Nearchus delivers supplies at Babylon')
+];
+
+const ancientLabels: AncientLabel[] = [
+  { id: 'label-macedon', name: 'Macedon', kind: 'territory', coordinates: [22.3, 40.9] },
+  { id: 'label-hellas', name: 'Hellas', kind: 'region', coordinates: [21.5, 38.5] },
+  { id: 'label-anatolia', name: 'Anatolia', kind: 'region', coordinates: [29.2, 38.5] },
+  { id: 'label-phoenicia', name: 'Phoenicia', kind: 'region', coordinates: [35.2, 33.7] },
+  { id: 'label-mesopotamia', name: 'Mesopotamia', kind: 'region', coordinates: [43.0, 34.3] },
+  { id: 'label-persis', name: 'Persis', kind: 'territory', coordinates: [52.5, 30.2] },
+  { id: 'label-tyre', name: 'Tyre', kind: 'city', coordinates: [35.2, 33.3] },
+  { id: 'label-babylon', name: 'Babylon', kind: 'city', coordinates: [44.4, 32.5] },
+  { id: 'label-susa', name: 'Susa', kind: 'city', coordinates: [48.3, 32.9] }
+];
+
 const segments: RouteSegment[] = [
   {
     id: 'seg-pella-granicus',
@@ -599,7 +725,9 @@ export const dataset: CampaignDataset = {
         ]
       }
     }
-  ]
+  ],
+  territoryTimeline,
+  ancientLabels
 };
 
 export const orderedWaypoints = (trackId: string): Waypoint[] =>
@@ -609,3 +737,15 @@ export const orderedWaypoints = (trackId: string): Waypoint[] =>
 
 export const segmentsForTrack = (trackId: string): RouteSegment[] =>
   dataset.segments.filter((segment) => segment.trackId === trackId);
+
+export const territorySnapshotForWaypoint = (waypointId: string): TerritorySnapshot => {
+  const snapshot = dataset.territoryTimeline.find((entry) => entry.waypointId === waypointId);
+  if (snapshot) {
+    return createSnapshot(snapshot.waypointId, snapshot.territories, snapshot.description ?? '');
+  }
+  const fallback = dataset.territoryTimeline.length > 0 ? dataset.territoryTimeline[dataset.territoryTimeline.length - 1] : undefined;
+  if (!fallback) {
+    return { waypointId, description: '', territories: [] };
+  }
+  return createSnapshot(waypointId, fallback.territories, fallback.description ?? '');
+};

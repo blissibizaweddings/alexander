@@ -1,6 +1,6 @@
-import { dataset, orderedWaypoints, segmentsForTrack } from '@/data/mockCampaign';
+import { dataset, orderedWaypoints, segmentsForTrack, territorySnapshotForWaypoint } from '@/data/mockCampaign';
 import type { RouteSegment, Track, Waypoint } from '@/types';
-import type { FeatureCollection, LineString, Point, Polygon } from 'geojson';
+import type { FeatureCollection, LineString, Point, Polygon, MultiPolygon } from 'geojson';
 
 export const buildTrackLineFeatures = (track: Track): FeatureCollection<LineString> => {
   const segments = segmentsForTrack(track.id);
@@ -64,6 +64,38 @@ export const buildRegionFeatures = (): FeatureCollection => ({
       period: region.period
     },
     geometry: region.geometry
+  }))
+});
+
+export const buildTerritoryFeatures = (waypointId: string): FeatureCollection<Polygon | MultiPolygon> => {
+  const snapshot = territorySnapshotForWaypoint(waypointId);
+  return {
+    type: 'FeatureCollection',
+    features: snapshot.territories.map((territory) => ({
+      type: 'Feature',
+      id: `${territory.id}-${snapshot.waypointId}`,
+      properties: {
+        name: territory.name,
+        controller: territory.controller
+      },
+      geometry: territory.geometry
+    }))
+  };
+};
+
+export const buildAncientLabelFeatures = (): FeatureCollection<Point> => ({
+  type: 'FeatureCollection',
+  features: dataset.ancientLabels.map((label) => ({
+    type: 'Feature',
+    id: label.id,
+    properties: {
+      name: label.name,
+      kind: label.kind
+    },
+    geometry: {
+      type: 'Point',
+      coordinates: label.coordinates
+    }
   }))
 });
 
